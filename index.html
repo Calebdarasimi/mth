@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics Proficiency Test</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --background: #1a1a2e;
+            --correct: #27ae60;
+            --incorrect: #c0392b;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" font-family="Arial" font-size="20" fill="rgba(255,255,255,0.03)">∫ ∑ π √ ∞ ≈ ≠ ≤ ≥ ±</text></svg>'), 
+                        linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .timer::before {
+            content: '⏱';
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .question-box {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid var(--secondary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            min-height: 40px;
+        }
+
+        .options label:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .options input {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--secondary), #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 25px auto 10px;
+            transition: all 0.3s ease;
+            display: block;
+            width: 200px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .registration {
+            text-align: center;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .correct { 
+            background: var(--correct) !important;
+            color: white;
+        }
+
+        .incorrect { 
+            background: var(--incorrect) !important; 
+            color: white;
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+            border-top: 3px solid var(--secondary);
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 10px 0;
+        }
+
+        .percentage {
+            font-size: 1.8rem;
+            color: #f1c40f;
+            margin-bottom: 15px;
+        }
+
+        .test-completed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .test-completed h2 {
+            color: #2ecc71;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 5s linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Math decorations */
+        .math-deco {
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.03;
+            z-index: -1;
+            font-weight: bold;
+        }
+
+        .deco-1 {
+            top: -30px;
+            right: -30px;
+        }
+
+        .deco-2 {
+            bottom: -30px;
+            left: -30px;
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="math-deco deco-1">∑</div>
+    <div class="math-deco deco-2">π</div>
+
+    <div class="registration" id="registration">
+        <div class="container">
+            <h1>Mathematics Proficiency Test</h1>
+            <p>Please enter your details to begin the test</p>
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
+            <button onclick="startTest()">Begin Test</button>
+        </div>
+    </div>
+
+    <div class="container" id="testContainer" style="display: none;">
+        <div class="timer" id="timer">05:00</div>
+        <h2>Mathematics Test</h2>
+        <p>You have 5 minutes to complete 10 questions. Good luck!</p>
+        
+        <div id="questions"></div>
+        <button onclick="submitTest()" id="submitBtn">Submit Answers</button>
+    </div>
+
+    <div id="completedScreen" class="test-completed" style="display: none;">
+        <h2>Test Submitted Successfully!</h2>
+        <div id="finalScore"></div>
+        <p>Thank you for completing the test.</p>
+        <p>Your results have been recorded.</p>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the value of 15 + 27 − 8?",
+                options: ["30", "34", "40", "44"],
+                correct: 1
+            },
+            {
+                question: "Solve for x in the equation 3x + 5 = 20.",
+                options: ["3", "5", "7", "10"],
+                correct: 1
+            },
+            {
+                question: "What is the area of a rectangle with length 8 cm and width 5 cm?",
+                options: ["13 cm²", "30 cm²", "40 cm²", "45 cm²"],
+                correct: 2
+            },
+            {
+                question: "Simplify 12/18 to its lowest terms.",
+                options: ["1/2", "2/3", "3/4", "6/9"],
+                correct: 1
+            },
+            {
+                question: "What is 25% of 200?",
+                options: ["25", "50", "75", "100"],
+                correct: 1
+            },
+            {
+                question: "Evaluate 2⁴.",
+                options: ["8", "16", "32", "64"],
+                correct: 1
+            },
+            {
+                question: "If a book costs $12 and a pen costs $3, how much do 2 books and 4 pens cost together?",
+                options: ["$24", "$30", "$36", "$42"],
+                correct: 2
+            },
+            {
+                question: "What is the greatest common divisor (GCD) of 24 and 36?",
+                options: ["6", "12", "18", "24"],
+                correct: 1
+            },
+            {
+                question: "A fair six-sided die is rolled. What is the probability of getting an even number?",
+                options: ["1/6", "1/3", "1/2", "2/3"],
+                correct: 2
+            },
+            {
+                question: "What is the derivative of f(x) = 5x³ + 2x − 7 with respect to x?",
+                options: ["5x² + 2", "15x² + 2", "15x³ + 2x", "10x + 2"],
+                correct: 1
+            }
+        ];
+
+        let userAnswers = Array(questions.length).fill(null);
+        let timeLeft = 300; // 5 minutes in seconds
+        let timerId;
+        let testStarted = false;
+        let testSubmitted = false;
+
+        function startTest() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            if (!name || !phone) {
+                alert('Please enter both your name and phone number');
+                return;
+            }
+
+            document.getElementById('registration').style.display = 'none';
+            document.getElementById('testContainer').style.display = 'block';
+            
+            // Start timer after 5 seconds
+            setTimeout(() => {
+                testStarted = true;
+                timerId = setInterval(updateTimer, 1000);
+                setupSecurity();
+            }, 5000);
+
+            renderQuestions();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+
+            if (timeLeft <= 0) {
+                submitTest();
+            } else if (timeLeft <= 30) {
+                document.getElementById('timer').style.background = '#c0392b';
+                document.getElementById('timer').style.animation = 'pulse 1s infinite';
+            }
+        }
+
+        function setupSecurity() {
+            // Tab switch detection
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && testStarted && !testSubmitted) {
+                    alert('Test submitted because you switched tabs');
+                    submitTest();
+                }
+            });
+
+            // Window blur detection
+            window.addEventListener('blur', () => {
+                if (testStarted && !testSubmitted) {
+                    alert('Test submitted because you left the test window');
+                    submitTest();
+                }
+            });
+
+            // Prevent context menu
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            // Prevent keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && testStarted && !testSubmitted) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions');
+            questions.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = 'question-box';
+                div.innerHTML = `
+                    <h3>Question ${i+1}: ${q.question}</h3>
+                    <div class="options" id="q${i}">
+                        ${q.options.map((opt, j) => `
+                            <label>
+                                <input type="radio" name="q${i}" value="${j}" onchange="saveAnswer(${i}, ${j})">
+                                ${String.fromCharCode(65 + j)}) ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function saveAnswer(questionIndex, answerIndex) {
+            userAnswers[questionIndex] = answerIndex;
+        }
+
+        function submitTest() {
+            if (testSubmitted) return;
+            testSubmitted = true;
+            
+            clearInterval(timerId);
+            testStarted = false;
+            calculateScore();
+            showResults();
+            
+            // Remove event listeners
+            window.removeEventListener('blur', submitTest);
+            document.removeEventListener('visibilitychange', submitTest);
+            
+            // Disable submit button
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Show completion screen after delay
+            setTimeout(() => {
+                document.getElementById('testContainer').style.display = 'none';
+                showCompletionScreen();
+            }, 3000);
+        }
+
+        function calculateScore() {
+            // Collect any unanswered questions
+            questions.forEach((_, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected) {
+                    userAnswers[i] = parseInt(selected.value);
+                }
+            });
+        }
+
+        function showResults() {
+            const score = userAnswers.reduce((acc, ans, i) => 
+                acc + (ans === questions[i].correct ? 1 : 0), 0);
+            
+            const percentage = (score / questions.length * 100).toFixed(1);
+            
+            document.getElementById('timer').remove();
+
+            // Highlight correct and incorrect answers
+            questions.forEach((q, i) => {
+                const options = document.querySelectorAll(`#q${i} label`);
+                options.forEach((opt, j) => {
+                    if (j === q.correct) {
+                        opt.classList.add('correct');
+                    } else if (userAnswers[i] === j) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            });
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'results';
+            resultDiv.innerHTML = `
+                <h3>Test Results</h3>
+                <div class="score-display">${score}/${questions.length}</div>
+                <div class="percentage">${percentage}%</div>
+                <p>Correct answers are highlighted in green. Your incorrect answers are shown in red.</p>
+            `;
+            document.getElementById('questions').appendChild(resultDiv);
+
+            // Disable all inputs
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.disabled = true;
+            });
+            
+            return {score, percentage};
+        }
+
+        function showCompletionScreen() {
+            const {score, percentage} = showResults();
+            const finalScore = document.getElementById('finalScore');
+            finalScore.innerHTML = `
+                <div class="score-display">${score}/${questions.length}</div>
+                <div class="percentage">${percentage}%</div>
+            `;
+            
+            document.getElementById('completedScreen').style.display = 'flex';
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6'];
+            const container = document.getElementById('completedScreen');
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(confetti);
+            }
+        }
+    </script>
+</body>
+</html>
